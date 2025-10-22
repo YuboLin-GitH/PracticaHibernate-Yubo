@@ -12,7 +12,7 @@ public class App extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/ui/pelicula-Hibernate.fxml"));
 
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Json Yubo");
+        stage.setTitle("Hibernate Pelicula Yubo");
         stage.setScene(scene);
         stage.sizeToScene();
         stage.show();

@@ -16,7 +16,10 @@ import com.yubo.util.AlertUtils;
 import org.hibernate.Session;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
+
+
 
 public class PeliculaController {
 
@@ -57,7 +60,7 @@ public class PeliculaController {
 
 
     public void cargarDatos() {
-        modoEdicion(false);
+        //modoEdicion(false);
         lvListaPelicula.getItems().clear();
 
         try (Session session = HibernateUtil.getSession()){
@@ -83,6 +86,36 @@ public class PeliculaController {
         tfDirector.setText(p.getDirector());
     }
 
+    @FXML
+    public void nuevoPelicula() {
+
+        if (tfTitulo.getText().isEmpty() || tfFecha.getText().isEmpty() || tfGenero.getText().isEmpty() || tfDirector.getText().isEmpty()) {
+            AlertUtils.mostrarError("No puede tiene los campos vacios");
+            return;
+        }
+        try(Session session = HibernateUtil.getSession()) {
+            Pelicula p = new Pelicula();
+            p.setTitulo(tfTitulo.getText());
+            p.setFecha(LocalDate.parse(tfFecha.getText()));
+            p.setGenero(tfGenero.getText());
+            p.setDirector(tfDirector.getText());
+
+            PeliculaDAOImpl.insertarPelicula(session, p);
+
+
+        }catch (Exception e){
+            System.out.println("Error de Insertar Pelicula");
+        }
+    }
+
+
+    @FXML
+    public void limpiarPelicula() {
+        tfTitulo.setText("");
+        tfFecha.setText("");
+        tfGenero.setText("");
+        tfDirector.setText("");
+    }
 
     private void modoEdicion(boolean activar) {
         btImportar.setDisable(activar);

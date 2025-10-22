@@ -33,9 +33,9 @@
             </Text>
             <Button fx:id="btImportar" layoutX="121.0" layoutY="307.0" mnemonicParsing="false" onAction="#onImportarClick" prefHeight="43.0" prefWidth="109.0" text="Importar" />
             <Button fx:id="btNuevo" layoutX="52.0" layoutY="413.0" mnemonicParsing="false" prefHeight="33.0" prefWidth="85.0" text="Nuevo" />
-            <Button fx:id="btModificar" layoutX="188.0" layoutY="413.0" mnemonicParsing="false" prefHeight="33.0" prefWidth="85.0" text="Modificar" />
+            <Button fx:id="btModificar" layoutX="188.0" layoutY="413.0" mnemonicParsing="false" prefHeight="33.0" prefWidth="85.0" text="Modificar" onAction="#nuevoPelicula" />
             <Button fx:id="btEliminar" layoutX="329.0" layoutY="413.0" mnemonicParsing="false" prefHeight="33.0" prefWidth="85.0" text="Eliminar" />
-            <Button fx:id="btLimpiar" layoutX="470.0" layoutY="413.0" mnemonicParsing="false" prefHeight="33.0" prefWidth="85.0" text="Limpiar" />
+            <Button fx:id="btLimpiar" layoutX="470.0" layoutY="413.0" mnemonicParsing="false" prefHeight="33.0" prefWidth="85.0" text="Limpiar" onAction="#limpiarPelicula"/>
          </children>
       </AnchorPane>
    </children>
