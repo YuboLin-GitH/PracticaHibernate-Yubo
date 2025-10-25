@@ -1,6 +1,7 @@
 package com.yubo.Controller;
 
 
+import com.yubo.DAO.PeliculaDAO;
 import com.yubo.util.HibernateUtil;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -15,7 +16,6 @@ import com.yubo.Model.Pelicula;
 import com.yubo.util.AlertUtils;
 import org.hibernate.Session;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,7 +23,7 @@ import java.util.List;
 
 public class PeliculaController {
 
-    private final PeliculaDAOImpl peliculaDAO = new PeliculaDAOImpl();
+    private final PeliculaDAO peliculaDAO = new PeliculaDAOImpl();
 
     @FXML
     public TextField tfTitulo, tfFecha, tfGenero, tfDirector;
@@ -33,28 +33,34 @@ public class PeliculaController {
     @FXML
     public Button btImportar, btNuevo, btModificar, btEliminar, btLimpiar;
 
+    private Pelicula peliculaSeleccionada;
 
     public  void initialize() {
-        try{}catch (Exception e){ // Fallo en la base de datos
+        try{
+            configurarListView();
+            enlazarSeleccionDeTabla();
+            lvListaPelicula.setOnMouseClicked(this::onPeliculaSeleccionada);
+        }catch (Exception e){ // Fallo en la base de datos
             System.out.println("Error de programa");
         }
 
+    }
+
+    private void configurarListView() {
         lvListaPelicula.setCellFactory(param -> new ListCell<Pelicula>() {
             @Override
             protected void updateItem(Pelicula pelicula, boolean empty) {
                 super.updateItem(pelicula, empty);
                 if (empty || pelicula == null) {
                     setText(null);
-                }else {
+                } else {
                     setText(pelicula.getTitulo());
                 }
             }
         });
-
-        lvListaPelicula.setOnMouseClicked(this::onPeliculaSeleccionada);
     }
 
-    public void onImportarClick(ActionEvent event) {
+    public void importaDatos(ActionEvent event) {
         cargarDatos();
     }
 
@@ -64,12 +70,18 @@ public class PeliculaController {
         lvListaPelicula.getItems().clear();
 
         try (Session session = HibernateUtil.getSession()){
-            List<Pelicula> pelicula = PeliculaDAOImpl.listarPelicula(session);
+            List<Pelicula> pelicula = peliculaDAO.listarPelicula(session);
             lvListaPelicula.setItems(FXCollections.observableList(pelicula));
 
         }
     }
-
+    private void enlazarSeleccionDeTabla() {
+        lvListaPelicula.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                peliculaSeleccionada = newVal;
+            }
+        });
+    }
 
 
     private void onPeliculaSeleccionada(MouseEvent event) {
@@ -100,12 +112,63 @@ public class PeliculaController {
             p.setGenero(tfGenero.getText());
             p.setDirector(tfDirector.getText());
 
-            PeliculaDAOImpl.insertarPelicula(session, p);
+            peliculaDAO.insertarPelicula(session, p);
 
+            AlertUtils.mostrarInformacion("Película insertada correctamente");
+            limpiarPelicula();
+            cargarDatos();
 
         }catch (Exception e){
             System.out.println("Error de Insertar Pelicula");
         }
+    }
+
+
+    @FXML
+    public void modificarPelicula() {
+        if (peliculaSeleccionada == null) {
+            AlertUtils.mostrarError("el seleccionado no existe");
+            return;
+        }
+        try(Session session = HibernateUtil.getSession())  {
+
+            peliculaSeleccionada.setTitulo(tfTitulo.getText());
+            peliculaSeleccionada.setFecha(LocalDate.parse(tfFecha.getText()));
+            peliculaSeleccionada.setGenero(tfGenero.getText());
+            peliculaSeleccionada.setDirector(tfDirector.getText());
+
+            peliculaDAO.modificarPelicula(session, peliculaSeleccionada);
+
+
+            AlertUtils.mostrarInformacion("Pelicula modificada correctamente");
+            limpiarPelicula();
+            cargarDatos();
+
+        } catch (Exception e) {
+            AlertUtils.mostrarError("Error：" + e.getMessage());
+        }
+
+    }
+
+    @FXML
+    public void eliminarPelicula() {
+        if (peliculaSeleccionada == null) {
+            AlertUtils.mostrarError("el seleccionado no existe");
+            return;
+        }
+        try(Session session = HibernateUtil.getSession())  {
+
+            peliculaDAO.borrarPelicula(session, peliculaSeleccionada);
+
+
+            AlertUtils.mostrarInformacion("Pelicula eliminada correctamente");
+            limpiarPelicula();
+            cargarDatos();
+
+        } catch (Exception e) {
+            AlertUtils.mostrarError("Error：" + e.getMessage());
+        }
+
     }
 
 
@@ -117,6 +180,7 @@ public class PeliculaController {
         tfDirector.setText("");
     }
 
+    /*  no necesito
     private void modoEdicion(boolean activar) {
         btImportar.setDisable(activar);
 
@@ -127,5 +191,5 @@ public class PeliculaController {
 
         lvListaPelicula.setDisable(activar);
     }
-
+    */
 }
